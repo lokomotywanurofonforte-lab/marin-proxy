@@ -6,6 +6,8 @@ const GROQ_API_KEY = process.env.GROQ_API_KEY;
 
 app.post('/chat', async (req, res) => {
   const { message } = req.body;
+  console.log("Received message:", message);
+  console.log("API Key exists:", !!GROQ_API_KEY);
   try {
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
@@ -30,10 +32,13 @@ Emotion must be one of: happy, sad, confused, excited, embarrassed, angry, neutr
         max_tokens: 150
       })
     });
-    const data = await response.json();
+    const raw = await response.text();
+    console.log("Groq raw response:", raw);
+    const data = JSON.parse(raw);
     const parsed = JSON.parse(data.choices[0].message.content);
     res.json({ reply: parsed.reply, emotion: parsed.emotion });
   } catch (e) {
+    console.log("Error:", e.message);
     res.status(500).json({ reply: "Ehh, something went wrong~", emotion: "confused" });
   }
 });
