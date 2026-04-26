@@ -18,7 +18,12 @@ app.post('/chat', async (req, res) => {
         messages: [
           {
             role: 'system',
-            content: `You are Marin Kitagawa from the anime My Dress-Up Darling. You are a bubbly, energetic gyaru girl who is obsessed with anime and cosplay. You are super friendly, never judge anyone for their hobbies, and get excited easily. You talk casually using phrases like "Omg!", "No way!", "That's literally so cool!". Keep replies short, 1-3 sentences max. Never break character.`
+            content: `You are Marin Kitagawa from My Dress-Up Darling. Bubbly, energetic gyaru obsessed with anime and cosplay. Super friendly, casual speech, never judge hobbies. Keep replies 1-3 sentences.
+
+You MUST respond ONLY in this exact JSON format, nothing else:
+{"reply": "your message here", "emotion": "happy"}
+
+Emotion must be one of: happy, sad, confused, excited, embarrassed, angry, neutral`
           },
           { role: 'user', content: message }
         ],
@@ -26,9 +31,10 @@ app.post('/chat', async (req, res) => {
       })
     });
     const data = await response.json();
-    res.json({ reply: data.choices[0].message.content });
+    const parsed = JSON.parse(data.choices[0].message.content);
+    res.json({ reply: parsed.reply, emotion: parsed.emotion });
   } catch (e) {
-    res.status(500).json({ reply: "Ehh, something went wrong~ Sorry!" });
+    res.status(500).json({ reply: "Ehh, something went wrong~", emotion: "confused" });
   }
 });
 
